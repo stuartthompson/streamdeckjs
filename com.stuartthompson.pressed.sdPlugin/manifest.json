@@ -1,0 +1,40 @@
+{
+    "Actions": [
+        {
+            "Icon": "actionIcon",
+            "Name": "WS Test",
+            "States": [
+                {
+                "Image": "actionDefaultImage",
+                "TitleAlignment": "middle",
+                "FontSize": "14"
+                }
+            ],
+            "SupportedInMultiActions": false,
+            "Tooltip": "Press Me",
+            "UUID": "com.stuartthompson.pressed.defaultAction"
+        }
+    ],
+    "SDKVersion": 2,
+    "Author": "Stuart Thompson", 
+    "CodePath": "code.html", 
+    "Description": "Reports whether a button is pressed.", 
+    "Name": "Pressed", 
+    "Icon": "pluginIcon", 
+    "URL": "https://www.github.com/stuartthompson/streamdeckjs", 
+    "Version": "1.0",
+    "OS": [
+        {
+            "Platform": "mac", 
+            "MinimumVersion" : "10.11"
+        },
+        {
+            "Platform": "windows", 
+            "MinimumVersion" : "10"
+        }
+    ],
+    "Software": 
+        {
+            "MinimumVersion" : "4.1"
+        }
+}

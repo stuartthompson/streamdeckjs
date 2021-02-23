@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>com.stuartthompson.pressed</title>
+    <meta charset="utf-8" />
+</head>
+
+<body>
+    <script>
+        var websocket = null;
+        var pluginUUID = null;
+        var pressed = null;
+        var default_timeout = null;
+       
+        function connectElgatoStreamDeckSocket(inPort, inPluginUUID, inRegisterEvent, inInfo) {
+
+            // Store plugin id
+            pluginUUID = inPluginUUID
+
+            websocket = new WebSocket("ws://localhost:" + inPort);
+
+            function registerPlugin(inPluginUUID) {
+                var json = {
+                    "event": inRegisterEvent,
+                    "uuid": inPluginUUID
+                };
+
+                websocket.send(JSON.stringify(json));
+            };
+
+            function setTitle(context, title) {
+                var json = {
+                    "event": "setTitle",
+                    "context": context,
+                    "payload": {
+                        "title": title,
+                        "target": 0
+                    }
+                };
+
+                websocket.send(JSON.stringify(json));
+            }
+
+            websocket.onopen = function () {
+                registerPlugin(pluginUUID);
+            };
+
+            websocket.onmessage = function (evt) {
+                console.log("Message received: " + JSON.stringify(evt.data));
+
+                // Get message from StreamDeck
+                var jsonObj = JSON.parse(evt.data);
+                var event = jsonObj['event'];
+                var action = jsonObj['action'];
+                var context = jsonObj['context'];
+
+                // KEY DOWN
+                if (event == "keyDown") {
+                    var jsonPayload = jsonObj['payload'];
+                    var settings = jsonPayload['settings'];
+                    var coordinates = jsonPayload['coordinates'];
+                    var userDesiredState = jsonPayload['userDesiredState'];
+                    
+                    setTitle(context, 'Down');
+                    clearTimeout(default_timeout);
+                    pressed = true;
+                }
+
+                // KEY UP
+                if (event == "keyUp") {
+                    var jsonPayload = jsonObj['payload'];
+                    var settings = jsonPayload['settings'];
+                    var coordinates = jsonPayload['coordinates'];
+                    var userDesiredState = jsonPayload['userDesiredState'];
+
+                    setTitle(context, 'Up');
+                    pressed = false;
+
+                    default_timeout = setTimeout(function() {
+                        if (!pressed) {
+                            console.log('Returning to default state.');
+                            setTitle(context, 'Press');
+                        }
+                    }, 1000);
+                }
+
+                // WILL APPEAR
+                if (event == "willAppear") {
+                    var jsonPayload = jsonObj['payload'];
+                    var settings = jsonPayload['settings'];
+                    var coordinates = jsonPayload['coordinates'];
+                    var userDesiredState = jsonPayload['userDesiredState'];
+
+                    setTitle(context, 'Press');
+                }
+            };
+
+            websocket.onclose = function() {
+                // Websocket closed
+                console.log('Websocket closed.');
+            };
+        };
+
+    </script>
+</body>
+
+</html>
